@@ -1,29 +1,23 @@
 # main.py
-from config import IMO_LIST
-from api_client import fetch_vessels_data
+import asyncio
+from api_client import listen_mediterranean_stream
 from engine import evaluate_business_rules
 from notifier import send_alerts_to_crm
 
-def run_tracking_cycle():
-    print("--- Iniciando ciclo diario de tracking AIS ---")
+def handle_vessel_event(vessel_data):
+    """Callback que se ejecuta instantáneamente al detectar uno de nuestros barcos."""
+    print(f"\n🎯 ¡Barco objetivo detectado en el stream!")
+    print(f"   • {vessel_data['name']} (MMSI: {vessel_data['mmsi']})")
+    print(f"   • Posición: Lat {vessel_data['latitude']}, Lon {vessel_data['longitude']}")
     
-    if not IMO_LIST:
-        print("No hay números IMO configurados en el CRM/config.")
-        return
-
-    # 1. Obtener datos actuales filtrados por el Mediterráneo
-    vessels_in_med = fetch_vessels_data(IMO_LIST)
-    print(f"Barcos de cartera detectados en el Mediterráneo: {len(vessels_in_med)}")
-    
-    # 2. Evaluar reglas de negocio
-    alerts = evaluate_business_rules(vessels_in_med)
-    print(f"Alertas comerciales generadas: {len(alerts)}")
-    
-    # 3. Enviar al CRM
+    # Evaluar reglas y notificar
+    alerts = evaluate_business_rules([vessel_data])
     if alerts:
         send_alerts_to_crm(alerts)
-        
-    print("--- Ciclo finalizado con éxito ---")
 
 if __name__ == "__main__":
-    run_tracking_cycle()
+    try:
+        # Inicia el bucle asíncrono para escuchar el stream en tiempo real
+        asyncio.run(listen_mediterranean_stream(handle_vessel_event))
+    except KeyboardInterrupt:
+        print("\n🛑 Monitoreo detenido manualmente por el usuario.")

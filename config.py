@@ -1,20 +1,20 @@
 # config.py
 import os
+from dotenv import load_dotenv
 
-API_KEY = os.getenv("AIS_API_KEY", "tu_api_key_aqui")
-API_URL = "https://api.proveedor-maritimo.com/v1/vessels"  # Ejemplo genérico
+load_dotenv()
 
-# Lista de IMOs de tus clientes en el CRM
-IMO_LIST = [
-    "9321483",
-    "9456782",
-    "9123456"
-]
+AISSTREAM_API_KEY = os.getenv("AISSTREAM_API_KEY")
 
-# Coordenadas aproximadas del Bounding Box del Mediterráneo (Lat Min/Max, Lon Min/Max)
-MED_BOUNDS = {
-    "lat_min": 30.0,
-    "lat_max": 46.0,
-    "lon_min": -6.0,
-    "lon_max": 36.0
+# NOTA: AISStream funciona con MMSI para identificar barcos de forma precisa en tiempo real. 
+# Debes mapear tus IMO a sus respectivos MMSI. (Ejemplos de placeholder)
+TARGET_MMSIS = {
+    "228385000": "Artexplorer",  # Reemplaza con el MMSI real de Artexplorer
+    "210567000": "Breakthrough"  # Reemplaza con el MMSI real de Breakthrough
 }
+
+# Bounding Box del Mediterráneo adaptado al formato de AISStream: [[lat_min, lon_min], [lat_max, lon_max]]
+MED_BOUNDING_BOX = [
+    [30.0, -6.0],  # Esquina suroeste (Lat, Lon)
+    [46.0, 36.0]   # Esquina noreste (Lat, Lon)
+]
