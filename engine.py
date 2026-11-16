@@ -1,34 +1,22 @@
 # engine.py
 
-def evaluate_business_rules(vessels_data):
+def evaluate_business_rules(vessel):
     """
-    Evalúa los datos actuales de los barcos y genera alertas comerciales.
+    Evalúa los datos en tiempo real de un buque y genera alertas si cumple condiciones.
     """
     alerts = []
     
-    for vessel in vessels_data:
-        imo = vessel.get("imo")
-        name = vessel.get("name", "Desconocido")
-        status = vessel.get("navigation_status") # Ej: 'Underway', 'Anchored'
-        destination = vessel.get("destination", "No especificado")
-        eta = vessel.get("eta", "No disponible")
+    name = vessel.get("name", "Desconocido")
+    mmsi = vessel.get("mmsi")
+    status = vessel.get("navigation_status") # Estado de navegación (ej: Fondeado, En marcha)
+    
+    # Ejemplo de regla comercial 1: Detectar si el barco está fondeado
+    # (El valor numérico de 'Anchored' o texto depende de cómo devuelva el campo el mensaje AIS)
+    if status is not None:
+        # Puedes adaptar esta condición según los códigos de estado de AISStream si los necesitas
+        pass
         
-        # Regla 1: Barco fondeado (posible necesidad de servicio o soporte)
-        if status and status.lower() == "anchored":
-            alerts.append({
-                "imo": imo,
-                "vessel_name": name,
-                "type": "FONDEO",
-                "message": f"El buque {name} está fondeado cerca de {destination}."
-            })
-            
-        # Regla 2: Barco con destino declarado activo (actividad comercial detectada)
-        if destination and destination != "No especificado":
-            alerts.append({
-                "imo": imo,
-                "vessel_name": name,
-                "type": "DESTINO_ACTIVO",
-                "message": f"El buque {name} navega hacia {destination} (ETA: {eta})."
-            })
-            
+    # Por ahora, como estamos en fase de captura y descubrimiento de MMSIs, 
+    # podemos dejar que devuelva una alerta informativa o simplemente usarlo de pasarela.
+    
     return alerts
